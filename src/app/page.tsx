@@ -1,37 +1,40 @@
 'use client'
-import { getBrowserGeolocation } from '@/utils/Geolocation';
-import { GoogleMap,useLoadScript, Marker } from '@react-google-maps/api';
-import { useEffect, useState } from 'react';
-import './page.module.css'
-
-
-declare global {
-  interface Window {
-    initMap: () => void;
-  }
-}
+import { Wrapper} from '@googlemaps/react-wrapper';
+import { Map } from '@/components/Map/Map';
+import './page.css';
+import { SearchInput } from '@/components/SearchInput/SearchInput';
+import { getBrowserGeolocation, getGeolocationByAddress } from '@/services/Geolocation';
+import { getWeather } from '@/services/Weather';
+import { Weather } from '@/utils/types/Weather.types';
+import { useContext, useEffect } from 'react';
+import { GeolocationContext } from '@/Context/GeolocationContext';
+import { WeatherContext, WeatherContextProps } from '@/Context/WeatherContext';
+import { Forecast } from '@/components/Forecast/Forecast';
 
 export default function Home() {
 
-  const {isLoaded} = useLoadScript({ googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string, })
+  const { coordinates, setCoordinates } = useContext(GeolocationContext);
+  const context = useContext(WeatherContext) as WeatherContextProps
+  const {setWeather} = context
+  
+    useEffect(() => {
+     getBrowserGeolocation(setCoordinates);
+    }, []);
 
-  if(!isLoaded) return <div>Loading...</div>
+    useEffect(() => {
+      (async () =>{
+      const weatherData: Weather = await getWeather(coordinates);
+      setWeather(weatherData);})()
+    },[coordinates])
   return (
-      <Map />
+    <>
+    <div className='container'>
+     <SearchInput getData={getGeolocationByAddress} />
+      <Wrapper apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} version='beta' libraries={['marker']}>
+          <Map />
+      </Wrapper>
+    </div>
+      <Forecast/>
+    </>
   )
-}
-
-
-function Map () {
-  const [coordinates, setCoordinates] = useState({ 
-    lat: -23.025960,
-    lng: -46.981928
-})
-
-  useEffect(() => {
-    getBrowserGeolocation(setCoordinates)
-  },[coordinates])
-
-
-  return <GoogleMap zoom={10} center={coordinates} mapContainerClassName='map'> </GoogleMap>
 }
