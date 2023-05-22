@@ -1,0 +1,37 @@
+.marker {
+    color: black;
+    background: var(--container-bg-gradient);
+    border-radius: var(--border-radius);
+    -webkit-box-shadow: var(--shadow-color);
+    box-shadow: var(--shadow-color);
+
+    display: flex;
+    justify-content: space-between;
+
+
+    padding: 10% 7%;
+    min-width: 200px;
+}
+
+.current-weather {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+
+   & h2 {
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+}
+
+.daily-temp-range{
+    display: flex;
+    flex-direction: column;
+    column-gap: 5px;
+    justify-content: space-between;
+
+    & div > span {
+        font-size: 12px;
+    }
+}
